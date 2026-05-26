@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Copyright, Menu, X, SlidersHorizontal, BookOpen, Scale, HelpCircle, Compass } from "lucide-react";
-import { LibraryFuturesLogo } from "./LibraryFuturesLogo";
+import { LibraryFuturesLogo } from "src/LIbraryFutures_CMYK.svg";
 
 interface NavbarProps {
   activeTab: string;
