@@ -1,0 +1,6 @@
+{
+  "name": "Copyright Advisory Network",
+  "description": "An interactive suite of five library policy tools (PD Copyright Slider, Copyright Compiler, Fair Use Evaluator, Section 108 Spinner, and Instructors e-Tool) built to ALA standards for 2026.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
