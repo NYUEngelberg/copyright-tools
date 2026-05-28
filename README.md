@@ -6,9 +6,9 @@ This project is a fully front-end, high-performance interactive SPA (Single Page
 
 ## 💻 How to Export the Code from Google Studio
 
-You can export this code as a clean, ready-to-use package directly from the AI Studio user interface:
+You can export this code as a clean, ready-to-use package directly from the Studio user interface:
 
-1. Look at the **right-hand settings panel** (or the main application menu/header) in the Google AI Studio interface.
+1. Look at the **right-hand settings panel** (or the main application menu/header) in the Google Studio interface.
 2. Click on the **Export** or **Settings / Three-Dots** menu.
 3. Select either:
    - **Export to GitHub**: This will authorize with your GitHub account and automatically create a new, private or public repository containing this entire codebase.
@@ -25,7 +25,7 @@ Cloudflare Pages provides blazing-fast, free hosting for static sites with build
 This is the easiest path, as Cloudflare Pages will automatically rebuild and deploy your site every time you push changes to GitHub.
 
 1. **Push your code to GitHub**:
-   - If you used the **Export to GitHub** feature in Google AI Studio, your code is already in a repository!
+   - If you used the **Export to GitHub** feature in Google Studio, your code is already in a repository!
    - If you downloaded a **ZIP**, extract it, initialize a git repository, and push it to your GitHub account:
      ```bash
      git init
