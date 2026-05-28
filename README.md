@@ -4,7 +4,7 @@ This project is a fully front-end, high-performance interactive SPA (Single Page
 
 ---
 
-## 💻 How to Export the Code from Google AI Studio
+## 💻 How to Export the Code from Google Studio
 
 You can export this code as a clean, ready-to-use package directly from the AI Studio user interface:
 
