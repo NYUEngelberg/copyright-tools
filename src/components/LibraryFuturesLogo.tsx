@@ -7,7 +7,7 @@ export function LibraryFuturesLogo() {
       <img
         src={logo}
         alt="Library Futures Logo"
-        className="h-10 sm:h-12 w-auto object-contain transition-transform duration-300 hover:scale-[1.02]"
+        className="h-8 w-auto object-contain"
       />
     </div>
   );

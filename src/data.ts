@@ -1,8 +1,18 @@
 import { SliderDate } from "./types";
 
-// Dynamic calculations based on the current year 2026
-const currentYear = 2026;
-export const publicDomainYear = currentYear - 95; // 1931
+// ─────────────────────────────────────────────────────────────────────────────
+// PROVENANCE NOTE — Public Domain Slider data
+// The original ALA Digital Copyright Slider loaded its date scenarios and
+// clarifying notes from a `data.js` file fetched at runtime (XHR). That file was
+// NOT captured in the site archive, and web.archive.org is unreachable from this
+// environment. The DATES_DATA / NOTES_DATA below are therefore PENDING
+// replacement with the verbatim original content. Everything else in the app is
+// verbatim from the archived source.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Public-domain boundary is the current year minus the 95-year published term.
+const currentYear = new Date().getFullYear();
+export const publicDomainYear = currentYear - 95; // 1931 in 2026
 
 export const DATES_DATA: SliderDate[] = [
   {
