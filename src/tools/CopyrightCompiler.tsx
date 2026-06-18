@@ -371,6 +371,46 @@ function authorWording(a: Answers) {
 }
 
 /* ================================================================== *
+ * Year <select> reused by date steps (1441 .. current year, as in the
+ * original tool). Defined at module scope so React does not remount the
+ * <select> on every keystroke.
+ * ================================================================== */
+function YearSelect({
+  id,
+  value,
+  onChange,
+  label,
+}: {
+  id: string;
+  value: string;
+  onChange: (v: string) => void;
+  label: string;
+}) {
+  const years: number[] = [];
+  for (let y = currentYear; y >= 1441; y--) years.push(y);
+  return (
+    <div className="space-y-2">
+      <label htmlFor={id} className="block">
+        <Label>{label}</Label>
+      </label>
+      <select
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full max-w-xs rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm font-medium text-zinc-800 focus-ring"
+      >
+        <option value="">—</option>
+        {years.map((y) => (
+          <option key={y} value={String(y)}>
+            {y}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+/* ================================================================== *
  * Component
  * ================================================================== */
 
@@ -457,44 +497,6 @@ export default function CopyrightCompiler() {
   const percent = showResult
     ? 100
     : Math.round(((clampedIndex + 1) / (steps.length + 1)) * 100);
-
-  /* ================================================================ *
-   * Year <select> reused by date steps (1441 .. current year, as in original)
-   * ================================================================ */
-  const YearSelect = ({
-    id,
-    value,
-    onChange,
-    label,
-  }: {
-    id: string;
-    value: string;
-    onChange: (v: string) => void;
-    label: string;
-  }) => {
-    const years: number[] = [];
-    for (let y = currentYear; y >= 1441; y--) years.push(y);
-    return (
-      <div className="space-y-2">
-        <label htmlFor={id} className="block">
-          <Label>{label}</Label>
-        </label>
-        <select
-          id={id}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full max-w-xs rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm font-medium text-zinc-800 focus-ring"
-        >
-          <option value="">—</option>
-          {years.map((y) => (
-            <option key={y} value={String(y)}>
-              {y}
-            </option>
-          ))}
-        </select>
-      </div>
-    );
-  };
 
   /* ================================================================ *
    * Step renderers (verbatim question + option text)

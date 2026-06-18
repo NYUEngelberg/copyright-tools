@@ -10,6 +10,7 @@ import {
   Printer,
   ShieldAlert,
   Disc3,
+  RotateCw,
 } from "lucide-react";
 import {
   Card,
@@ -196,11 +197,66 @@ const DIRECTIONS: string[] = [
 const DISCLAIMER =
   "This tool is designed to provide accurate and authoritative information with regard to the subject covered. This information is given with the understanding that neither the American Library Association, the ALA Office for Information Technology Policy nor Michael Brewer are engaged in rendering legal, copyright or other professional advice. Since the details of each copyright issue are fact-dependent, consult with your organization's copyright specialist or legal advisor regarding copyright questions.";
 
+/* ---- Wheel geometry ---------------------------------------------- */
+const WHEEL_C = 150; // center
+const WHEEL_R = 128; // radius
+const SEG_ANGLE = 360 / SEGMENTS.length; // 72°
+
+/** Point on the wheel at a "clock" angle (0 = top, increasing clockwise). */
+function clockPoint(phiDeg: number, r: number): [number, number] {
+  const a = (phiDeg * Math.PI) / 180;
+  return [WHEEL_C + r * Math.sin(a), WHEEL_C - r * Math.cos(a)];
+}
+
+/** SVG path for wedge i (centered on the top when rotation brings it there). */
+function wedgePath(i: number): string {
+  const [x1, y1] = clockPoint(i * SEG_ANGLE - SEG_ANGLE / 2, WHEEL_R);
+  const [x2, y2] = clockPoint(i * SEG_ANGLE + SEG_ANGLE / 2, WHEEL_R);
+  return `M ${WHEEL_C} ${WHEEL_C} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${WHEEL_R} ${WHEEL_R} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z`;
+}
+
+/** Greedy word-wrap for the wheel hub label (~10 chars/line). */
+function hubLines(title: string): string[] {
+  const words = title.split(" ");
+  const lines: string[] = [];
+  let cur = "";
+  for (const w of words) {
+    if ((cur + " " + w).trim().length > 10) {
+      if (cur) lines.push(cur);
+      cur = w;
+    } else {
+      cur = (cur + " " + w).trim();
+    }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+
 export default function Section108Spinner() {
   const [activeId, setActiveId] = useState<SegmentId>("last20");
+  const [rotation, setRotation] = useState<number>(0);
   const [disclaimerOpen, setDisclaimerOpen] = useState<boolean>(false);
 
-  const active = SEGMENTS.find((s) => s.id === activeId) as Segment;
+  const activeIndex = SEGMENTS.findIndex((s) => s.id === activeId);
+  const active = SEGMENTS[activeIndex];
+
+  /** Rotate the wheel so wedge i sits under the top pointer (shortest path). */
+  function selectIndex(i: number) {
+    setRotation((prev) => {
+      let target = -i * SEG_ANGLE;
+      while (target - prev > 180) target -= 360;
+      while (prev - target > 180) target += 360;
+      return target;
+    });
+    setActiveId(SEGMENTS[i].id);
+  }
+
+  /** Spin to the next segment (always rotates forward). */
+  function spin() {
+    const next = (activeIndex + 1) % SEGMENTS.length;
+    setRotation((prev) => prev - SEG_ANGLE);
+    setActiveId(SEGMENTS[next].id);
+  }
 
   return (
     <div className="space-y-8">
@@ -245,51 +301,113 @@ export default function Section108Spinner() {
       </Card>
 
       {/* ----------------------------------------------------------- */}
-      {/* Segment selector */}
+      {/* The wheel */}
       {/* ----------------------------------------------------------- */}
-      <section aria-label="Section 108 categories">
-        <Label>Choose a category</Label>
-        <div
-          role="tablist"
-          aria-label="Section 108 categories"
-          className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5"
-        >
-          {SEGMENTS.map((seg) => {
-            const Icon = seg.icon;
-            const selected = seg.id === activeId;
-            return (
-              <button
-                key={seg.id}
-                role="tab"
-                id={`tab-${seg.id}`}
-                aria-selected={selected}
-                aria-controls={`panel-${seg.id}`}
-                onClick={() => setActiveId(seg.id)}
-                className={`flex flex-col items-start gap-3 rounded-xl border p-4 text-left transition-colors duration-150 focus-ring ${
-                  selected
-                    ? "border-[#9a1866] bg-[#fdf2f8] ring-1 ring-[#9a1866]"
-                    : "border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50"
-                }`}
-              >
-                <span
-                  className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                    selected ? "bg-[#9a1866] text-white" : "bg-zinc-100 text-zinc-500"
+      <Card className="p-6 sm:p-8">
+        <div className="flex flex-col items-center gap-6">
+          <Label>Turn the wheel to a category</Label>
+
+          <svg
+            viewBox="0 0 300 300"
+            className="h-72 w-72 select-none sm:h-80 sm:w-80"
+            role="img"
+            aria-label={`Section 108 wheel — ${active.title} selected`}
+          >
+            {/* Top pointer */}
+            <polygon points="150,36 136,6 164,6" fill="#9a1866" />
+
+            {/* Rotating wheel */}
+            <g
+              style={{
+                transform: `rotate(${rotation}deg)`,
+                transformBox: "fill-box",
+                transformOrigin: "center",
+                transition: "transform 0.65s cubic-bezier(0.2, 0.8, 0.2, 1)",
+              }}
+            >
+              {SEGMENTS.map((seg, i) => (
+                <path
+                  key={seg.id}
+                  d={wedgePath(i)}
+                  onClick={() => selectIndex(i)}
+                  className="cursor-pointer"
+                  fill={i === activeIndex ? "#9a1866" : i % 2 ? "#f3cfe2" : "#fbe5f0"}
+                  stroke="#ffffff"
+                  strokeWidth="2"
+                />
+              ))}
+              {SEGMENTS.map((seg, i) => {
+                const [tx, ty] = clockPoint(i * SEG_ANGLE, WHEEL_R * 0.62);
+                return (
+                  <text
+                    key={seg.id}
+                    x={tx}
+                    y={ty}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    className="pointer-events-none"
+                    fontSize="24"
+                    fontWeight="800"
+                    fill={i === activeIndex ? "#ffffff" : "#9a1866"}
+                  >
+                    {i + 1}
+                  </text>
+                );
+              })}
+            </g>
+
+            {/* Fixed center hub showing the active title */}
+            <circle cx="150" cy="150" r="52" fill="#ffffff" stroke="#e4e4e7" strokeWidth="2" />
+            <text
+              x="150"
+              y="150"
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize="12"
+              fontWeight="700"
+              fill="#18181b"
+            >
+              {hubLines(active.title).map((line, idx, arr) => (
+                <tspan key={idx} x="150" dy={idx === 0 ? `${-(arr.length - 1) * 0.6}em` : "1.2em"}>
+                  {line}
+                </tspan>
+              ))}
+            </text>
+          </svg>
+
+          <Button icon={RotateCw} onClick={spin}>
+            Spin to next
+          </Button>
+
+          {/* Legible legend / direct selector */}
+          <div className="flex flex-wrap justify-center gap-2">
+            {SEGMENTS.map((seg, i) => {
+              const selected = i === activeIndex;
+              return (
+                <button
+                  key={seg.id}
+                  onClick={() => selectIndex(i)}
+                  aria-pressed={selected}
+                  className={`flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-semibold transition-colors duration-150 focus-ring ${
+                    selected
+                      ? "border-[#9a1866] bg-[#9a1866] text-white"
+                      : "border-zinc-200 bg-white text-zinc-600 hover:border-[#9a1866]/40 hover:text-zinc-900"
                   }`}
                 >
-                  <Icon className="h-5 w-5" />
-                </span>
-                <span
-                  className={`font-display text-sm font-extrabold leading-tight ${
-                    selected ? "text-[#9a1866]" : "text-zinc-900"
-                  }`}
-                >
+                  <span
+                    className={`flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold ${
+                      selected ? "bg-white/20 text-white" : "bg-zinc-100 text-zinc-500"
+                    }`}
+                  >
+                    {i + 1}
+                  </span>
                   {seg.title}
-                </span>
-              </button>
-            );
-          })}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </section>
+      </Card>
 
       {/* ----------------------------------------------------------- */}
       {/* Active segment content */}
