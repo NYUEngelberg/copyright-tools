@@ -15,7 +15,6 @@ import {
   ProgressBar,
   Choice,
   ResultBanner,
-  Modal,
 } from "../components/ui";
 
 /* ------------------------------------------------------------------ *
@@ -103,16 +102,6 @@ interface Outcome {
   /** Year copyright expires (public domain begins Jan 1 of expiration + 1). */
   expiration?: number;
 }
-
-/* ---- Helper popup content ----------------------------------------
- * The original tool fetched these note popups server-side; that text
- * was NOT present in the captured source files. We therefore use brief,
- * neutral helper labels and do not fabricate legal content.
- * ------------------------------------------------------------------ */
-
-const NEUTRAL_HELP =
-  "Help text for this question was not available in the source material. " +
-  "Please consult the original documentation or a copyright specialist.";
 
 /* ================================================================== *
  * Year parsing helpers
@@ -389,9 +378,6 @@ export default function CopyrightCompiler() {
   const [answers, setAnswers] = useState<Answers>(initialAnswers);
   const [stepIndex, setStepIndex] = useState(0);
   const [showResult, setShowResult] = useState(false);
-  const [modal, setModal] = useState<{ title: string; body: React.ReactNode } | null>(
-    null
-  );
 
   const steps = useMemo(() => buildSteps(answers), [answers]);
   const clampedIndex = Math.min(stepIndex, steps.length - 1);
@@ -404,10 +390,6 @@ export default function CopyrightCompiler() {
   /* ---- mutation helper ---- */
   function update<K extends keyof Answers>(key: K, value: Answers[K]) {
     setAnswers((prev) => ({ ...prev, [key]: value }));
-  }
-
-  function openHelp(title: string, body: React.ReactNode = NEUTRAL_HELP) {
-    setModal({ title, body });
   }
 
   function reset() {
@@ -476,25 +458,6 @@ export default function CopyrightCompiler() {
     ? 100
     : Math.round(((clampedIndex + 1) / (steps.length + 1)) * 100);
 
-  /* ---- Helper link inline component ---- */
-  const HelpLink = ({
-    label,
-    title,
-    body,
-  }: {
-    label: string;
-    title: string;
-    body?: React.ReactNode;
-  }) => (
-    <button
-      type="button"
-      onClick={() => openHelp(title, body)}
-      className="ml-2 align-baseline text-[13px] font-semibold text-[#9a1866] underline decoration-dotted underline-offset-2 hover:text-[#7d1453] focus-ring rounded"
-    >
-      {label}
-    </button>
-  );
-
   /* ================================================================ *
    * Year <select> reused by date steps (1441 .. current year, as in original)
    * ================================================================ */
@@ -544,7 +507,6 @@ export default function CopyrightCompiler() {
             legend={
               <>
                 Is the work in question copyrightable?
-                <HelpLink label="[what does this mean?]" title="What does this mean?" />
               </>
             }
           >
@@ -569,7 +531,6 @@ export default function CopyrightCompiler() {
             legend={
               <>
                 Has the work been published?
-                <HelpLink label="[note]" title="Note" />
               </>
             }
           >
@@ -594,7 +555,6 @@ export default function CopyrightCompiler() {
             legend={
               <>
                 In what year was the work first <span className="underline">published</span>?
-                <HelpLink label="[note]" title="Note" />
               </>
             }
           >
@@ -631,7 +591,6 @@ export default function CopyrightCompiler() {
             legend={
               <>
                 The work was first published
-                <HelpLink label="[note]" title="Note" />
               </>
             }
           >
@@ -668,7 +627,6 @@ export default function CopyrightCompiler() {
             legend={
               <>
                 Was the work registered with the copyright office? [rare]
-                <HelpLink label="[find out here]" title="Find out here" />
               </>
             }
           >
@@ -716,7 +674,6 @@ export default function CopyrightCompiler() {
             >
               <span className="flex flex-wrap items-center">
                 through joint authorship
-                <HelpLink label="[explanation]" title="Explanation" />
               </span>
             </Choice>
             <Choice
@@ -725,7 +682,6 @@ export default function CopyrightCompiler() {
             >
               <span className="flex flex-wrap items-center">
                 as a work for hire/under corporate authorship
-                <HelpLink label="[explanation]" title="Explanation" />
               </span>
             </Choice>
             <Choice
@@ -734,7 +690,6 @@ export default function CopyrightCompiler() {
             >
               <span className="flex flex-wrap items-center">
                 under a pseudonym
-                <HelpLink label="[explanation]" title="Explanation" />
               </span>
             </Choice>
             <Choice
@@ -743,7 +698,6 @@ export default function CopyrightCompiler() {
             >
               <span className="flex flex-wrap items-center">
                 by an anonymous author
-                <HelpLink label="[explanation]" title="Explanation" />
               </span>
             </Choice>
           </StepShell>
@@ -755,7 +709,6 @@ export default function CopyrightCompiler() {
             legend={
               <>
                 In what year was the work <span className="underline">created?</span>
-                <HelpLink label="[note]" title="Note" />
               </>
             }
           >
@@ -774,7 +727,6 @@ export default function CopyrightCompiler() {
             legend={
               <>
                 Was the work published with a copyright notice?
-                <HelpLink label="[what does this mean?]" title="What does this mean?" />
               </>
             }
           >
@@ -811,7 +763,6 @@ export default function CopyrightCompiler() {
             legend={
               <>
                 Was the copyright on the work renewed?
-                <HelpLink label="[find out here]" title="Find out here" />
               </>
             }
           >
@@ -843,7 +794,6 @@ export default function CopyrightCompiler() {
               <>
                 Is {words.aliveQuestionSubject === "author" ? "the author" : "the author (or at least one of the authors)"}{" "}
                 still alive?
-                <HelpLink label="[how to find out]" title="How to find out" />
               </>
             }
           >
@@ -865,7 +815,6 @@ export default function CopyrightCompiler() {
             >
               <span className="flex flex-wrap items-center">
                 Not sure (death date unknown or not registered)
-                <HelpLink label="[explanation]" title="Explanation" />
               </span>
             </Choice>
           </StepShell>
@@ -877,7 +826,6 @@ export default function CopyrightCompiler() {
             legend={
               <>
                 When did the {words.deathSubject === "author" ? "author" : "author (or last living author)"} die?
-                <HelpLink label="[how to find out]" title="How to find out" />
               </>
             }
           >
@@ -899,7 +847,6 @@ export default function CopyrightCompiler() {
             >
               <span className="flex flex-wrap items-center">
                 Not sure (death date unknown or not registered)
-                <HelpLink label="[explanation]" title="Explanation" />
               </span>
             </Choice>
           </StepShell>
@@ -1059,20 +1006,6 @@ export default function CopyrightCompiler() {
           )}
         </div>
       </Card>
-
-      {/* Helper popup modal */}
-      <Modal
-        open={modal !== null}
-        onClose={() => setModal(null)}
-        title={modal?.title ?? ""}
-        footer={
-          <Button variant="secondary" onClick={() => setModal(null)}>
-            Close
-          </Button>
-        }
-      >
-        {modal?.body}
-      </Modal>
     </div>
   );
 }
