@@ -1,29 +1,49 @@
 import { useState } from "react";
-import { DATES_DATA, NOTES_DATA, publicDomainYear } from "../data";
+import { DATES_DATA, SLIDER_NOTES, publicDomainYear } from "../data";
+import type { SliderDate } from "../types";
 import { Card, SectionHeader, Label, Badge, Button, Choice, Modal, ResultBanner } from "../components/ui";
 import { Info, ScrollText } from "lucide-react";
 
 /**
  * Public Domain Slider — "Is it Protected by Copyright?"
- * On-page chrome (title, framing, directions, disclaimer) is verbatim from the
- * original ALA Digital Copyright Slider. The date scenarios + clarifying notes
- * live in ../data (see note in that file regarding provenance).
+ * On-page chrome and the date scenarios + clarifying notes are verbatim from the
+ * original ALA Digital Copyright Slider (notes joined exactly as the original
+ * app.js did, with the Permission / Copyright Status header prepended).
  */
+
+/** Build the note HTML for a date, mirroring the original app.js exactly. */
+function buildNoteHtml(d: SliderDate): string {
+  let html =
+    "<p><strong>Permission Needed: </strong>" +
+    d.permission +
+    "<br /><strong>Copyright Status/Term: </strong>" +
+    d.status +
+    "</p>";
+  (d.note ?? []).forEach((id) => {
+    html += SLIDER_NOTES[id] ?? "";
+  });
+  return html;
+}
+
+/** Modal title = date + " - " + tagline, decoding the two entities app.js handled. */
+function modalTitle(d: SliderDate): string {
+  let title = d.date;
+  if (d.tagline) {
+    const tagline = d.tagline.replace("&copy;", "©").replace("&amp;", "&");
+    title += " - " + tagline;
+  }
+  return title;
+}
+
 export default function PublicDomainSlider() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
 
   const activeDate = DATES_DATA[selectedIndex];
-  const activeNote = activeDate.noteId ? NOTES_DATA[activeDate.noteId] : null;
+  const hasNote = !!activeDate.note && activeDate.note.length > 0;
 
   const permissionTone =
     activeDate.permission === "No" ? "positive" : activeDate.permission === "Yes" ? "negative" : "caution";
-  const permissionLabel =
-    activeDate.permission === "No"
-      ? "No — in the public domain"
-      : activeDate.permission === "Yes"
-      ? "Yes — protected by copyright"
-      : "Maybe — further investigation needed";
 
   return (
     <div className="space-y-8">
@@ -64,7 +84,10 @@ export default function PublicDomainSlider() {
             <div>
               <Label>Permission Needed?</Label>
               <div className="mt-2">
-                <ResultBanner tone={permissionTone} title={permissionLabel} />
+                <ResultBanner
+                  tone={permissionTone}
+                  title={hasNote ? `${activeDate.permission} *` : activeDate.permission}
+                />
               </div>
             </div>
 
@@ -73,21 +96,24 @@ export default function PublicDomainSlider() {
               <div className="mt-2 rounded-xl border border-zinc-200 bg-zinc-50 p-4">
                 <p className="font-semibold leading-snug text-zinc-900">{activeDate.status}</p>
                 {activeDate.tagline && (
-                  <p className="mt-1.5 text-sm text-zinc-500">{activeDate.tagline}</p>
+                  <p
+                    className="mt-1.5 text-sm text-zinc-500"
+                    dangerouslySetInnerHTML={{ __html: activeDate.tagline }}
+                  />
                 )}
               </div>
             </div>
 
-            {activeNote && (
+            {hasNote && (
               <Button variant="secondary" icon={Info} className="w-full" onClick={() => setModalOpen(true)}>
                 Show clarifying information
               </Button>
             )}
 
             <p className="rounded-xl bg-zinc-50 p-4 text-center text-sm leading-relaxed text-zinc-600">
-              U.S. copyright protection lasts <strong>95 years</strong> for published works. In 2026,
-              works first published before <strong>January 1, {publicDomainYear}</strong> are in the
-              public domain.
+              U.S. copyright protection lasts <strong>95 years</strong> for published works. In{" "}
+              {new Date().getFullYear()}, works first published before{" "}
+              <strong>January 1, {publicDomainYear}</strong> are in the public domain.
             </p>
           </Card>
         </div>
@@ -97,11 +123,7 @@ export default function PublicDomainSlider() {
           <SectionHeader>Date of First Publication</SectionHeader>
           <div className="space-y-3">
             {DATES_DATA.map((item, idx) => (
-              <Choice
-                key={idx}
-                selected={selectedIndex === idx}
-                onClick={() => setSelectedIndex(idx)}
-              >
+              <Choice key={idx} selected={selectedIndex === idx} onClick={() => setSelectedIndex(idx)}>
                 <span className="flex flex-1 items-center justify-between gap-3">
                   <span>
                     {item.unpublished && (
@@ -109,13 +131,15 @@ export default function PublicDomainSlider() {
                         Unpublished
                       </span>
                     )}
-                    <span className="font-display text-sm font-extrabold text-zinc-900">
-                      {item.date}
-                    </span>
+                    <span
+                      className="font-display text-sm font-extrabold text-zinc-900"
+                      dangerouslySetInnerHTML={{ __html: item.date }}
+                    />
                     {item.tagline && (
-                      <span className="mt-0.5 block text-xs font-normal text-zinc-500">
-                        {item.tagline}
-                      </span>
+                      <span
+                        className="mt-0.5 block text-xs font-normal text-zinc-500"
+                        dangerouslySetInnerHTML={{ __html: item.tagline }}
+                      />
                     )}
                   </span>
                   <span
@@ -150,36 +174,17 @@ export default function PublicDomainSlider() {
         </p>
       </Card>
 
-      {/* Notes modal */}
+      {/* Notes modal — verbatim note HTML */}
       <Modal
-        open={modalOpen && !!activeNote}
+        open={modalOpen && hasNote}
         onClose={() => setModalOpen(false)}
-        title={activeNote?.title ?? ""}
+        title={modalTitle(activeDate)}
         footer={<Button onClick={() => setModalOpen(false)}>Close</Button>}
       >
-        {activeNote && (
-          <div className="space-y-4">
-            <div className="flex flex-wrap gap-2">
-              <span className="rounded-md bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-600">
-                Permission Needed: {activeDate.permission}
-              </span>
-              <span className="rounded-md bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-600">
-                {activeDate.status}
-              </span>
-            </div>
-            <p className="leading-relaxed text-zinc-700">{activeNote.content}</p>
-            {activeNote.keyPoints.length > 0 && (
-              <ul className="space-y-2">
-                {activeNote.keyPoints.map((pt, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-sm text-zinc-600">
-                    <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#9a1866]" />
-                    <span>{pt}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
+        <div
+          className="leading-relaxed text-zinc-700 [&_a]:font-semibold [&_a]:text-[#9a1866] [&_a]:underline [&_a]:underline-offset-2 [&_h4]:mt-4 [&_h4]:font-display [&_h4]:font-bold [&_h4]:text-zinc-900 [&_p]:mb-3"
+          dangerouslySetInnerHTML={{ __html: buildNoteHtml(activeDate) }}
+        />
       </Modal>
     </div>
   );

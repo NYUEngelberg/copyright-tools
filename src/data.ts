@@ -1,215 +1,311 @@
 import { SliderDate } from "./types";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PROVENANCE NOTE — Public Domain Slider data
-// The original ALA Digital Copyright Slider loaded its date scenarios and
-// clarifying notes from a `data.js` file fetched at runtime (XHR). That file was
-// NOT captured in the site archive, and web.archive.org is unreachable from this
-// environment. The DATES_DATA / NOTES_DATA below are therefore PENDING
-// replacement with the verbatim original content. Everything else in the app is
-// verbatim from the archived source.
+// Public Domain Slider data — VERBATIM from the original ALA Digital Copyright
+// Slider `data.js` (recovered via the Wayback Machine). Note text and date
+// scenarios are reproduced exactly; the only change is that archived link URLs
+// (web.archive.org/web/…/<url>) have been restored to their original clean form,
+// which is what the live data.js contained.
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Public-domain boundary is the current year minus the 95-year published term.
 const currentYear = new Date().getFullYear();
 export const publicDomainYear = currentYear - 95; // 1931 in 2026
 
+// Notes are stored as the original arrays and joined with a single space, exactly
+// as the original app.js did (`fetchedData.notes[n].join(' ')`).
+const NOTE_PARTS: Record<string, string[]> = {
+  crHeading: ["<h4>Copyright Renewal</h4>"],
+  adHeading: ["<h4>Author's Death</h4>"],
+
+  copyrightGenie: [
+    "<p>",
+    "To determine the exact date a work will enter (or has entered) ",
+    "the public domain, see the ",
+    "<a href='https://librarycopyright.net/resources/genie/' target='_blank'>Copyright Genie</a>.",
+    "</p>",
+  ],
+
+  copyrightNotice: [
+    "<p>",
+    "In order to receive copyright protection, works published",
+    "in the U.S. prior to March 1, 1989 were required to include",
+    "a copyright notice [&copy;]. On or after March 1, 1989, no",
+    "copyright notice was required for a published work to receive",
+    "copyright protection. Unpublished works have never needed",
+    "a copyright notice to receive copyright protection.",
+    "</p>",
+  ],
+
+  copyrightRenewal: [
+    "<p>",
+    "At some points in time, copyrights could be renewed or",
+    "automatically extended. Works that were not renewed have",
+    "fallen into the public domain and are not protected by",
+    "copyright. To learn about the issues of automatic",
+    "renewal, see",
+    "<a href='https://www.copyright.gov/circs/circ15t.pdf' target='_blank'>Circular 15t</a>.",
+    "To understand the process of determining whether or not",
+    "something was ever renewed, see",
+    "<a href='https://www.copyright.gov/circs/circ22.pdf' target='_blank'>Circular 22</a>",
+    "and",
+    "<a href='https://www.copyright.gov/circs/circ23.pdf' target='_blank'>Circular 23</a>.",
+    "</p>",
+  ],
+
+  protected: [
+    "<p>",
+    "This work is protected by copyright. However, several copyright exceptions",
+    "may still allow you to use the work without the author's",
+    "permission. Possible exceptions include: Fair Use [See",
+    "<a href='http://www.copyright.gov/fls/fl102.html' target='_blank'>Fact Sheet 102</a> or the",
+    "<a href='http://librarycopyright.net/resources/fairuse/' target='_blank'>Fair Use Evaluator</a>], Educational exemptions [See",
+    "the <a href='http://librarycopyright.net/resources/etool/' target='_blank'>Exceptions for Educators eTool</a>], Library or",
+    "archival exceptions [See <a href='http://librarycopyright.net/resources/spinner/' target='_blank'>Section 108 Spinner</a>],",
+    "among others [See <a href='http://www.copyright.gov/circs/circ21.pdf' target='_blank'>Circular 21</a>].",
+    "</p>",
+  ],
+
+  permission: [
+    "<p>",
+    "If a copyrighted work is not covered under an exception, you should",
+    "get permission to use it. For help tracking down copyright owners,",
+    "see <a href='http://www.copyright.gov/circs/circ22.pdf' target='_blank'>Circular 22</a>. These and other resources",
+    "can be found at the <a href='http://www.copyright.gov/' target='_blank'>U.S. Copyright Office Website</a>",
+    "</p>",
+  ],
+
+  pdDate: [
+    "<p>",
+    "Works enter the public domain on January 1st of the year following",
+    "the expiration of their copyright term.",
+    "</p>",
+  ],
+
+  furtherInfo: [
+    "<p>",
+    "For further information also visit the Copyright Advisory Network at",
+    "<a href='https://www.librarycopyright.net' target='_blank'>https://www.librarycopyright.net</a>.",
+    "</p>",
+  ],
+
+  authorsDeath: [
+    "<p>",
+    "The term for most works in this category is life of the author",
+    "(or longest living author) + 70. If the date of the author's",
+    "death plus 70 years is a date before 2047, the longer term",
+    "is recognized. For works of corporate authorship,",
+    "anonymous works, pseudonymous works, or works for which the",
+    "author's death date is unknown, the term is through 2047,",
+    "unless the lesser of the date of publication +95 and the date",
+    "of creation +120 is more, in which case, that number is the",
+    "term.",
+    "</p>",
+  ],
+
+  lateRegistration: [
+    "<p>",
+    "Works published without a copyright notice after 1977 and",
+    "before March 1st, 1989, could be registered with the",
+    "copyright office within 5 years and receive full copyright",
+    "protection. Those that were not registered within 5 years",
+    "of publication are in the public domain.",
+    "</p>",
+  ],
+
+  unpublished: [
+    "<p>",
+    "Most unpublished works by individuals enter the public domain",
+    "70 years after the death of the [last living] author. For",
+    "anonymous works, pseudonymous works, or works for which the",
+    "author's death date is uknown, the term is 120 years from",
+    "the date of creation.",
+    "</p>",
+  ],
+
+  corporate: [
+    "<p>",
+    "Unpublished works created under corporate authorship",
+    "enter the public domain 120 years after their creation.",
+    "</p>",
+  ],
+
+  registeredUnpublished: [
+    "<p>",
+    "Unpublished works that were registered with the Copyright",
+    "Office [rare] have the same term as if they had been",
+    "published (using the date of registration in place",
+    "of the date of publication).",
+    "</p>",
+  ],
+
+  sonnyBono: [
+    "<p>",
+    "The Sonny Bono Copyright Extension Act of 1998 added twenty",
+    "years of copyright protection to protected works. This created",
+    "a twenty year delay of older works entering the public domain.",
+    "Since twenty years have passed since the legislation went into",
+    "effect, each January 1st, another year of protected works enters",
+    "the public domain, creating a \"rolling\" public domain. Subtracting",
+    "96 years from the current year will be the year that more works enter",
+    "the public domain.",
+    "</p>",
+  ],
+};
+
+export const SLIDER_NOTES: Record<string, string> = Object.fromEntries(
+  Object.entries(NOTE_PARTS).map(([k, parts]) => [k, parts.join(" ")])
+);
+
 export const DATES_DATA: SliderDate[] = [
   {
-    date: `Before January 1, ${publicDomainYear}`,
-    tagline: "Works published with or without copyright notice",
+    id: "pre-1923",
+    date: `Before ${publicDomainYear}`,
     permission: "No",
     status: "In Public Domain",
-    noteId: "before1931"
+    note: ["sonnyBono"],
   },
   {
-    date: `Between 1923 and 1977`,
-    tagline: "Published without a copyright notice",
+    id: "post-1922-pre-1978-no-copyright-notice",
+    date: `After ${publicDomainYear - 1} & Before 1978`,
+    tagline: "If published without &copy; notice",
     permission: "No",
     status: "In Public Domain",
-    noteId: "published-without-notice-1923-1977"
+    note: ["copyrightNotice", "copyrightGenie"],
   },
   {
-    date: `Between 1923 and 1963`,
-    tagline: "Published with notice, but not renewed after 28 years",
+    id: "pre-1964-not-renewed",
+    date: `After ${publicDomainYear - 1} & Before 1964`,
+    tagline: "If published with &copy; notice, but not renewed after 28 years",
     permission: "No",
     status: "In Public Domain",
-    noteId: "notice-no-renewal-1923-1963"
+    note: ["copyrightNotice", "copyrightRenewal", "copyrightGenie"],
   },
   {
-    date: `Between 1923 and 1963`,
-    tagline: "Published with notice and copyright was renewed",
+    id: "pre-1964-renewed",
+    date: `After ${publicDomainYear - 1} & Before 1964`,
+    tagline: "If published with &copy; notice, renewed after 28 years",
     permission: "Maybe",
-    status: "Protected by Copyright (Term: 95 years from publication)",
-    noteId: "notice-renewed-1923-1963"
+    status: "Protected through 2018 or longer (95 years from the date of publication)",
+    twoLines: true,
+    note: [
+      "protected",
+      "permission",
+      "crHeading",
+      "copyrightNotice",
+      "copyrightRenewal",
+      "pdDate",
+      "copyrightGenie",
+      "furtherInfo",
+    ],
   },
   {
-    date: `Between 1964 and 1977`,
-    tagline: "Published with copyright notice",
+    id: "post-1964-pre-1978",
+    date: "After 1963 & Before 1978",
+    tagline: "If published with &copy; notice",
     permission: "Maybe",
-    status: "Protected by Copyright (Term: 95 years from publication)",
-    noteId: "published-notice-1964-1977"
+    status: "Protected through 2059 or longer (95 years from the date of publication",
+    twoLines: true,
+    note: [
+      "protected",
+      "permission",
+      "crHeading",
+      "copyrightNotice",
+      "pdDate",
+      "copyrightGenie",
+      "furtherInfo",
+    ],
   },
   {
-    date: `Between 1978 and January 1, 2003`,
-    tagline: "Created unpublished before 1978, but published before 2003",
+    id: "pre-1978-published-pre-2003",
+    date: "After 1977 & Before 2003",
+    tagline: "Created (unpublished) before 1978 & first published before January 1, 2003",
     permission: "Maybe",
-    status: "Protected by Copyright (Term: Declines on Jan 1, 2048)",
-    noteId: "unpublished-created-before-1978-published-before-2003"
+    status: "Protected through 2047 or longer (life of author +70)",
+    twoLines: true,
+    note: [
+      "protected",
+      "permission",
+      "adHeading",
+      "authorsDeath",
+      "copyrightNotice",
+      "pdDate",
+      "copyrightGenie",
+      "furtherInfo",
+    ],
   },
   {
-    date: `Between 1978 and March 1, 1989`,
-    tagline: "Published without notice and without subsequent registration",
+    id: "post-1977-pre-3-1989-no-reg",
+    date: "After 1977 & Before March 1, 1989",
+    tagline: "If published without &copy; notice &amp; without subsequent registration",
     permission: "No",
     status: "In Public Domain",
-    noteId: "published-without-notice-1978-1989"
+    note: ["copyrightNotice", "lateRegistration", "copyrightGenie"],
   },
   {
-    date: `Between 1978 and March 1, 1989`,
-    tagline: "Published without notice but registered, or published with notice",
+    id: "pre-1978-pre-3-1989-registered-or-copyrighted",
+    date: "After 1977 & Before March 1, 1989",
+    tagline:
+      "If published without &copy; notice but registered within 5 years; or published with &copy; notice",
     permission: "Maybe",
-    status: "Protected by Copyright (Term: Life + 70 years / Corporate: 95 years)",
-    noteId: "published-without-notice-cured-1978-1989"
+    status: "Protected until 70 years after the death of the author",
+    twoLines: true,
+    note: [
+      "protected",
+      "permission",
+      "authorsDeath",
+      "copyrightNotice",
+      "lateRegistration",
+      "copyrightGenie",
+      "furtherInfo",
+    ],
   },
   {
-    date: `After March 1, 1989`,
-    tagline: "Published with or without copyright notice",
+    id: "post-3-1989-registered-or-copyrighted",
+    date: "On or after March 1, 1989",
+    tagline: "Published with or without &copy; notice",
     permission: "Maybe",
-    status: "Protected by Copyright (Term: Life + 70 years / Corporate: 95 years)",
-    noteId: "published-after-1989"
+    status: "Protected until 70 years after the death of the author",
+    twoLines: true,
+    note: ["protected", "permission", "authorsDeath", "pdDate", "copyrightGenie", "furtherInfo"],
   },
   {
-    date: `Published after 2002`,
+    id: "post-3-1989-registered-or-copyrighted",
+    date: "Published after 2002",
     tagline: "Created before 1978 and author died more than 70 years ago",
     permission: "No",
     status: "In Public Domain",
-    noteId: "unpublished-created-before-1978-never-published"
   },
   {
-    date: "Author living or died in the last 70 years",
-    tagline: "Unpublished Works (Date of Creation)",
+    id: "unpublished-authors",
+    date: "Created by Individual or Joint Authors",
+    unpublished: true,
     permission: "Maybe",
-    status: "Protected by Copyright (Term: Life of author + 70 years)",
-    noteId: "unpublished-living-died-last-70",
-    unpublished: true
+    status: "Protected until 70 years after the death of the author",
+    twoLines: true,
+    note: [
+      "protected",
+      "permission",
+      "unpublished",
+      "registeredUnpublished",
+      "copyrightGenie",
+      "furtherInfo",
+    ],
   },
   {
-    date: "Author died more than 70 years ago",
-    tagline: "Unpublished Works (Date of Creation)",
-    permission: "No",
-    status: "In Public Domain (Expired)",
-    noteId: "unpublished-died-more-than-70",
-    unpublished: true
-  }
+    id: "unpublished-corporate",
+    date: "Created under Corporate Authorship",
+    unpublished: true,
+    permission: "Maybe",
+    status: "Protected until 120 years after the date of creation",
+    twoLines: true,
+    note: [
+      "protected",
+      "permission",
+      "corporate",
+      "registeredUnpublished",
+      "copyrightGenie",
+      "furtherInfo",
+    ],
+  },
 ];
-
-export const NOTES_DATA: Record<string, { title: string; content: string; keyPoints: string[] }> = {
-  before1931: {
-    title: `Works Published Before January 1, ${publicDomainYear}`,
-    content: `Under U.S. copyright law, all works first published in the United States prior to January 1, ${publicDomainYear} have entered the Public Domain due to the expiration of their statutory 95-year term. No permission is required to copy, distribute, remix, display publicly, or publish derivative works of these materials under domestic law. This covers books, sheet music, prints, photographs, and films that were launched during this period.`,
-    keyPoints: [
-      "Copyright has naturally expired for all works published prior to 1931.",
-      "The material can be fully used commercialy or non-commercially without permission.",
-      "Ensures absolute safety for archival reproduction and digitisation."
-    ]
-  },
-  "published-without-notice-1923-1977": {
-    title: "Between 1923 and 1977 - Published without Notice",
-    content: "Under the provisions of the U.S. Copyright Act of 1909, works first published in the United States were strictly required to bear a formal copyright notice (the word 'Copyright' or '©', the year of publication, and the name of the copyright holder). If a work was published during these years without this mandatory notice, the work instantly entered the Public Domain upon publication, and the copyright was lost forever with no cure available.",
-    keyPoints: [
-      "Notice was a mandatory requirement for published works under the 1909 Act.",
-      "Publishing without notice instantly dedicated the work to the Public Domain.",
-      "Be careful to verify that earlier or foreign printings didn't have notice."
-    ]
-  },
-  "notice-no-renewal-1923-1963": {
-    title: "Between 1923 and 1963 - Published with Notice, but Not Renewed",
-    content: "Works published with proper copyright notice between 1923 and 1963 enjoyed an initial statutory copyright term of 28 years. To secure protection for an additional term, the copyright owner was required to file a formal renewal application with the U.S. Copyright Office within the 28th year of the initial term. If no renewal was filed, the copyright expired at the end of the initial 28th year, placing the work in the Public Domain.",
-    keyPoints: [
-      "Initial copyright term lasted exactly 28 years.",
-      "A formal renewal registration was required in the 28th year.",
-      "Upwards of 85-90% of works from this period were never renewed and are now in the Public Domain."
-    ]
-  },
-  "notice-renewed-1923-1963": {
-    title: "Between 1923 and 1963 - Published with Notice & Renewed",
-    content: "Works published with notice between 1923 and 1963 and successfully renewed in their 28th year are granted copyright protection for a total term of 95 years from the date of publication. In 2026, works published in 1931 and renewed are expiring, while works published in 1932 through 1963 and renewed remain protected by copyright.",
-    keyPoints: [
-      "Total term of protection is 95 years from first publication date.",
-      "Applicable only if a renewal application was registered with the Copyright Office.",
-      "Works published in 1931 expire on December 31, 2026; works from 1932 are protected through 2027."
-    ]
-  },
-  "published-notice-1964-1977": {
-    title: "Between 1964 and 1977 - Published with Notice",
-    content: "Works first published with proper copyright notice between January 1, 1964 and December 31, 1977 are protected for a full term of 95 years. Under the 1992 Automatic Renewal Act amendment, the second term of renewal was automatically assigned by law without requiring the copyright owner to file renewal paperwork. Therefore, these works are guaranteed protection for 95 years.",
-    keyPoints: [
-      "Renewal registration was made automatic by federal statute in 1992.",
-      "Protects works for a full, contiguous term of 95 years from publication.",
-      "For example, a work published in 1964 is protected until December 31, 2059."
-    ]
-  },
-  "unpublished-created-before-1978-published-before-2003": {
-    title: "Created before 1978, but Published between 1978 and 2002",
-    content: "Works that were created before 1978 and remained unpublished as of January 1, 1978, but were subsequently published between 1978 and December 31, 2002, are protected. To encourage the historical preservation and publication of archival manuscripts, congress guaranteed that the term of copyright for these titles would not expire before December 31, 2047.",
-    keyPoints: [
-      "Applies to legacy works first published in the 1978-2002 window.",
-      "Copyright term is federally guaranteed to last until at least December 31, 2047.",
-      "Designed specifically to reward libraries, archives, and publishers for printing unpublished history."
-    ]
-  },
-  "published-without-notice-1978-1989": {
-    title: "Between 1978 and March 1, 1989 - Published without Notice & No Cure",
-    content: "Works published between January 1, 1978 and March 1, 1989 without a copyright notice entered the Public Domain unless the omission was cured. Under the 1976 Copyright Act, curing required registering the work with the Copyright Office within five years of the publication without notice and making a reasonable effort to add notice to all copies distributed in the United States after the omission was discovered.",
-    keyPoints: [
-      "Notice was still required under the original 1976 Act, but omission was curable.",
-      "Cure required registration within 5 years and subsequent addition of notice.",
-      "If curative steps were not completed, the work fell into the Public Domain."
-    ]
-  },
-  "published-without-notice-cured-1978-1989": {
-    title: "Between 1978 and March 1, 1989 - Curated or Published with Notice",
-    content: "Works published with formal notice inside this date range, or published without notice but registering cured within five years, are protected by copyright. The statutory term is generally the life of the author plus 70 years, or 95 years from publication / 120 years from creation for anonymous, pseudonymous, or work-for-hire creations.",
-    keyPoints: [
-      "Adheres to standard modern terms from the 1976 Act.",
-      "Term is measured by the natural life of the creator plus 70 years.",
-      "Works for hire are protected for 95 years from publication."
-    ]
-  },
-  "published-after-1989": {
-    title: "After March 1, 1989 - Published with or without Notice",
-    content: "On March 1, 1989, the United States officially joined the Berne Convention, an international copyright treaty. As a result, copyright notice became completely voluntary and optional for all works published on or after that date. The omission of a copyright notice has absolutely no impact on the copyright status of works published after March 1, 1989, which are automatically protected.",
-    keyPoints: [
-      "Berne Convention Implementation Act of 1988 abolished mandatory notice.",
-      "Works are fully protected automatically from the moment of creation and fixation.",
-      "Term of protection is the life of the author plus 70 years, or 95/120 years for works for hire."
-    ]
-  },
-  "unpublished-created-before-1978-never-published": {
-    title: "Created before 1978, Unpublished but in Public Domain",
-    content: "Works created before 1978 that have never been published are protected until 70 years after the death of the author. In 2026, works by creators who died more than 70 years ago (on or before December 31, 1955) have fully entered the Public Domain.",
-    keyPoints: [
-      "Term is the life of the author plus 70 years.",
-      "If the author's death date is not known, protection is 120 years from creation.",
-      "In 2026, any unpublished work by a creator who died before 1956 is in the Public Domain."
-    ]
-  },
-  "unpublished-living-died-last-70": {
-    title: "Unpublished - Creator Living or Passed within Last 70 Years",
-    content: "Unpublished works by authors who are currently living, or who passed away less than 70 years ago (after December 31, 1955), are fully protected by copyright. A license or explicit permission from the creator's estate is necessary to copy, transmit, distribute, or display these materials publicly.",
-    keyPoints: [
-      "Extends automatic federal copyright to unpublished materials.",
-      "Term is measured by the life of the author plus 70 years to protect estates.",
-      "Permission is strictly required from heirs or the copyright holder."
-    ]
-  },
-  "unpublished-died-more-than-70": {
-    title: "Unpublished - Creator Passed more than 70 Years Ago",
-    content: "Unpublished works where the creator has been deceased for more than 70 years (on or before December 31, 1955) have entered the Public Domain. The concept of life plus 70 years applies equally to unpublished works, meaning legacy manuscripts from deceased historic figures are unlocked for public educational use.",
-    keyPoints: [
-      "Unpublished items fully expire exactly 70 years after the creator's death year.",
-      "In 2026, any unpublished work of an author who died in 1955 or earlier is Public Domain.",
-      "Allows scholars to freely publish ancient diaries, letters, and ledger books."
-    ]
-  }
-};
