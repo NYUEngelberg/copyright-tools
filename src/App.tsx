@@ -1,95 +1,109 @@
 import { useState } from "react";
 import Navbar from "./components/Navbar";
-import CopyrightSlider from "./components/CopyrightSlider";
-import { 
-  CopyrightGenieTool, 
-  FairUseEvaluatorTool, 
-  Section108SpinnerTool, 
-  InstructorsETool 
-} from "./components/ResourcesList";
-import { ShieldCheck, Mail, Copyright } from "lucide-react";
+import PublicDomainSlider from "./tools/PublicDomainSlider";
+import CopyrightCompiler from "./tools/CopyrightCompiler";
+import FairUseEvaluator from "./tools/FairUseEvaluator";
+import Section108Spinner from "./tools/Section108Spinner";
+import InstructorsETool from "./tools/InstructorsETool";
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState("slider"); // Starts with copyright slider
+  const [activeTab, setActiveTab] = useState("slider");
 
   const renderActiveTab = () => {
     switch (activeTab) {
       case "slider":
-        return <CopyrightSlider />;
+        return <PublicDomainSlider onNavigate={setActiveTab} />;
       case "genie":
-        return <CopyrightGenieTool />;
+        return <CopyrightCompiler />;
       case "fairuse":
-        return <FairUseEvaluatorTool />;
+        return <FairUseEvaluator />;
       case "spinner":
-        return <Section108SpinnerTool />;
+        return <Section108Spinner />;
       case "instructors":
         return <InstructorsETool />;
       default:
-        return <CopyrightSlider />;
+        return <PublicDomainSlider />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#f6f6f6] flex flex-col justify-between selection:bg-[#9a1866]/10 selection:text-[#9a1866]">
-      {/* Navigation Header */}
+    <div className="flex min-h-screen flex-col bg-[#f4f4f5] selection:bg-[#9a1866]/15 selection:text-[#9a1866]">
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* Main Content Pane */}
       <main className="flex-grow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white border border-slate-200/60 rounded-2xl p-6 sm:p-10 shadow-sm shadow-slate-100/50">
-            {renderActiveTab()}
-          </div>
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-10">
+          {renderActiveTab()}
         </div>
       </main>
 
-      {/* Modern High-Contrast Footer matching brand specifications */}
-      <footer className="bg-[#222222] text-slate-200 border-t-4 border-[#9a1866] py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pb-8 border-b border-slate-700/50 text-sm">
-            {/* Column 1: Info (5 cols) */}
-            <div className="lg:col-span-5 space-y-3">
-              <div className="flex items-center space-x-2">
-                <div className="bg-white/10 p-1.5 rounded flex items-center justify-center">
-                  <Copyright className="h-5 w-5 text-[#85346a]" />
-                </div>
-                <h4 className="font-display text-white font-extrabold uppercase tracking-wider text-base">
-                  Copyright Advisory Network
-                </h4>
-              </div>
-              <p className="font-sans leading-relaxed text-xs text-slate-300">
-                This page was first built by the Copyright Advisory Network of the American Library Association (2015-2020), a coalition of librarians, educators, and lawyers committed to supporting copyright education. Special thanks to Michael Brewer, Kathleen DeLaurenti, and others for their work in building these tools. This page is now maintained by <a href="https://libraryfutures.net" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#9a1866] transition-colors">Library Futures</a>, a project of NYU Law's <a href="https://nyuengelberg.org" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#9a1866] transition-colors">Engelberg Center on Innovation Law & Policy</a>.
-              </p>
-            </div>
+      <Footer />
+    </div>
+  );
+}
 
-            {/* Column 2: Legal Disclaimer (4 cols) */}
-            <div className="lg:col-span-4 space-y-3">
-              <h4 className="font-display text-white font-bold uppercase tracking-wider text-[#85346a] text-sm">
-                Legal Disclaimer
-              </h4>
-              <p className="font-sans leading-relaxed text-xs text-slate-400">
-                Information provided by these interactive tools represents public policy guidelines and educational consensus standards. <strong>We do not supply licensing or legal counsel.</strong> Please engage a copyright attorney if formal legal counsel is needed.
-              </p>
-            </div>
-
-            {/* Column 3: CC Licensing (3 cols) */}
-            <div className="lg:col-span-3 space-y-3">
-              <h4 className="font-display text-white font-bold uppercase tracking-wider text-sm">
-                Creative Commons
-              </h4>
-              <p className="font-sans leading-relaxed text-xs text-slate-300">
-                All algorithms, sliders, and calculators conform to the <strong>CC BY-NC-SA</strong> license model. Anyone may adapt, remix, and publish library exceptions tools with attribution.
-              </p>
-            </div>
+function Footer() {
+  return (
+    <footer className="border-t border-zinc-200 bg-white">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+          <div className="space-y-3 lg:col-span-6">
+            <h4 className="font-display text-sm font-extrabold uppercase tracking-wider text-zinc-900">
+              Copyright Advisory Network
+            </h4>
+            <p className="text-sm leading-relaxed text-zinc-600">
+              These tools were created by the Copyright Advisory Network of the American Library
+              Association&rsquo;s Office for Information Technology Policy &mdash; a community of
+              librarians, copyright scholars, and policy specialists &mdash; under a Creative
+              Commons license. The original suite was built by Michael Brewer and Justin Spargur.
+              This collection is now maintained by{" "}
+              <a
+                href="https://libraryfutures.net"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[#9a1866] underline-offset-2 hover:underline"
+              >
+                Library Futures
+              </a>
+              , a project of NYU Law&rsquo;s{" "}
+              <a
+                href="https://nyuengelberg.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[#9a1866] underline-offset-2 hover:underline"
+              >
+                Engelberg Center on Innovation Law &amp; Policy
+              </a>
+              .
+            </p>
           </div>
 
-          <div className="pt-8 flex flex-col md:flex-row items-center justify-between text-xs font-mono font-medium text-slate-400">
-            <span>
-              2015 – 2026 • Maintained by Library Futures
-            </span>
+          <div className="space-y-3 lg:col-span-3">
+            <h4 className="font-display text-sm font-extrabold uppercase tracking-wider text-zinc-900">
+              Legal Disclaimer
+            </h4>
+            <p className="text-sm leading-relaxed text-zinc-600">
+              These tools provide educational information, not legal advice. The details of each
+              copyright question are fact-dependent &mdash; consult your organization&rsquo;s
+              copyright specialist or legal counsel for guidance.
+            </p>
+          </div>
+
+          <div className="space-y-3 lg:col-span-3">
+            <h4 className="font-display text-sm font-extrabold uppercase tracking-wider text-zinc-900">
+              License
+            </h4>
+            <p className="text-sm leading-relaxed text-zinc-600">
+              Licensed under{" "}
+              <span className="font-semibold text-zinc-800">CC BY-NC-SA</span>. You are free to copy,
+              adapt, and share these tools with attribution under the same license.
+            </p>
           </div>
         </div>
-      </footer>
-    </div>
+
+        <div className="mt-10 border-t border-zinc-200 pt-6 text-sm text-zinc-500">
+          &copy; 2015&ndash;2026 &middot; Maintained by Library Futures
+        </div>
+      </div>
+    </footer>
   );
 }

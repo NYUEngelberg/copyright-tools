@@ -1,51 +1,65 @@
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400&family=Roboto+Condensed:wght@300;400;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-serif: "EB Garamond", "Times New Roman", serif;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Roboto Condensed", sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Library Futures brand palette */
+  --color-brand: #9a1866;
+  --color-brand-dark: #7d1453;
+  --color-brand-soft: #fdf2f8;
+  --color-ink: #18181b;
+  --color-page: #f4f4f5;
+
   --animate-spin-slow: spin 8s linear infinite;
-  --color-brand-primary: #9a1866;
-  --color-brand-secondary: #85346a;
-  --color-brand-gray: #f6f6f6;
-  --color-brand-black-body: #222222;
-  --color-brand-black-pure: #000000;
-  --color-brand-white: #ffffff;
 }
 
-/* Custom CSS variables reflecting the brand theme colors strictly */
 :root {
-  --text-primary: #222222;
-  --color-primary: #9a1866;
-  --color-secondary: #85346a;
-  --bg-parchment: #f6f6f6;
+  --brand: #9a1866;
+  --brand-dark: #7d1453;
+  --ink: #18181b;
+  --page: #f4f4f5;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background-color: #f6f6f6;
-  color: #222222;
+  background-color: var(--page);
+  color: var(--ink);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   overflow-x: hidden;
 }
 
-/* Elegant scrollbars styled in primary and secondary purple brand accents */
+/* Heading family */
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+/* Subtle, neutral scrollbars */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #f6f6f6;
+  background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #85346a;
-  border: 2px solid #f6f6f6;
+  background: #d4d4d8;
+  border: 2px solid var(--page);
   border-radius: 6px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #9a1866;
+  background: #a1a1aa;
+}
+
+/* Focus ring used across interactive elements */
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(154, 24, 102, 0.25);
 }
