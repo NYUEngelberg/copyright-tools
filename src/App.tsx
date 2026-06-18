@@ -12,7 +12,7 @@ export default function App() {
   const renderActiveTab = () => {
     switch (activeTab) {
       case "slider":
-        return <PublicDomainSlider />;
+        return <PublicDomainSlider onNavigate={setActiveTab} />;
       case "genie":
         return <CopyrightCompiler />;
       case "fairuse":

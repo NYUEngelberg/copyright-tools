@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { DATES_DATA, SLIDER_NOTES, publicDomainYear } from "../data";
 import type { SliderDate } from "../types";
 import { Card, SectionHeader, Label, Badge, Button, Choice, Modal, ResultBanner } from "../components/ui";
@@ -35,9 +35,27 @@ function modalTitle(d: SliderDate): string {
   return title;
 }
 
-export default function PublicDomainSlider() {
+export default function PublicDomainSlider({
+  onNavigate,
+}: {
+  onNavigate?: (tab: string) => void;
+}) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
+
+  // Notes cross-reference other tools via <a data-tab="…">; intercept those
+  // clicks and switch tabs instead of leaving the app.
+  const handleNoteClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const link = (e.target as HTMLElement).closest("[data-tab]");
+    if (link) {
+      e.preventDefault();
+      const tab = link.getAttribute("data-tab");
+      if (tab && onNavigate) {
+        setModalOpen(false);
+        onNavigate(tab);
+      }
+    }
+  };
 
   const activeDate = DATES_DATA[selectedIndex];
   const hasNote = !!activeDate.note && activeDate.note.length > 0;
@@ -182,6 +200,7 @@ export default function PublicDomainSlider() {
         footer={<Button onClick={() => setModalOpen(false)}>Close</Button>}
       >
         <div
+          onClick={handleNoteClick}
           className="leading-relaxed text-zinc-700 [&_a]:font-semibold [&_a]:text-[#9a1866] [&_a]:underline [&_a]:underline-offset-2 [&_h4]:mt-4 [&_h4]:font-display [&_h4]:font-bold [&_h4]:text-zinc-900 [&_p]:mb-3"
           dangerouslySetInnerHTML={{ __html: buildNoteHtml(activeDate) }}
         />
