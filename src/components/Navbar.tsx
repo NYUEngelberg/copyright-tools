@@ -36,10 +36,10 @@ export default function Navbar({ activeTab, setActiveTab }: NavbarProps) {
             <span className="hidden h-9 w-px bg-zinc-200 sm:block" />
             <span className="hidden text-left leading-tight sm:block">
               <span className="block font-display text-sm font-extrabold tracking-tight text-zinc-900">
-                Copyright Advisory Network
+                Interactive Tools
               </span>
               <span className="block font-display text-sm font-extrabold tracking-tight text-zinc-400">
-                Interactive Tools
+                Copyright for Librarians
               </span>
             </span>
           </button>
